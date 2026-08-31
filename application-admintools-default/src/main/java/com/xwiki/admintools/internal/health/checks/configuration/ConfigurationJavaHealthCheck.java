@@ -39,7 +39,9 @@ import org.xwiki.extension.version.internal.DefaultVersion;
 
 import com.xpn.xwiki.XWiki;
 import com.xpn.xwiki.XWikiContext;
+import com.xpn.xwiki.XWikiException;
 import com.xwiki.admintools.health.HealthCheck;
+import com.xwiki.admintools.internal.CloudDetectorUtil;
 import com.xwiki.admintools.jobs.JobResult;
 import com.xwiki.admintools.jobs.JobResultLevel;
 
@@ -67,6 +69,9 @@ public class ConfigurationJavaHealthCheck extends AbstractConfigurationHealthChe
     @Inject
     private Provider<XWikiContext> contextProvider;
 
+    @Inject
+    private CloudDetectorUtil cloudDetectorUtil;
+
     @Override
     public void initialize() throws InitializationException
     {
@@ -89,6 +94,12 @@ public class ConfigurationJavaHealthCheck extends AbstractConfigurationHealthChe
                 this.javaVersionString, this.xwikiVersionString);
         }
         return new JobResult("adminTools.dashboard.healthcheck.java.info", JobResultLevel.INFO);
+    }
+
+    @Override
+    public boolean isApplicable() throws XWikiException
+    {
+        return !this.cloudDetectorUtil.isCloud();
     }
 
     private String getXWikiVersion()
